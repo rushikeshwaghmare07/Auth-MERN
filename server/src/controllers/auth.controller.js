@@ -1,4 +1,4 @@
-import { userModel } from "../models/user.mode";
+import { userModel } from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
@@ -47,6 +47,7 @@ const registerUser = async (req, res) => {
 
     return res.status(201).json({
       success: true,
+      data: user,
       message: "User register successfully.",
     });
   } catch (error) {
@@ -70,7 +71,7 @@ const loginUser = async (req, res) => {
   }
 
   try {
-    const user = await userModel.findOne({ email });
+    const user = await userModel.findOne({ email }).select("+password");
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -102,10 +103,10 @@ const loginUser = async (req, res) => {
       message: "User logged in successfully.",
     });
   } catch (error) {
-    console.log("Error in loginUser controller:", error);
+    console.error("Error in loginUser controller:", error);
     return res.status(500).json({
       success: false,
-      message: "Something went wrong in while login the user.",
+      message: "Something went wrong while logging in the user.",
       error: error.message,
     });
   }
@@ -132,4 +133,9 @@ const logoutUser = async (req, res) => {
   }
 };
 
-export { registerUser, loginUser, logoutUser };
+
+export {
+  registerUser,
+  loginUser,
+  logoutUser,
+}
