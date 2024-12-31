@@ -111,4 +111,25 @@ const loginUser = async (req, res) => {
   }
 };
 
-export { registerUser, loginUser };
+const logoutUser = async (req, res) => {
+  try {
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "User logout successfully.",
+    });
+  } catch (error) {
+    console.log("Error in logoutUser controller:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong in while logout the user.",
+    });
+  }
+};
+
+export { registerUser, loginUser, logoutUser };
