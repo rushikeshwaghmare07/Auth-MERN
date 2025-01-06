@@ -187,6 +187,7 @@ const sendVerifyOtp = async (req, res) => {
   }
 };
 
+// verify user with otp
 const verifyEmail = async (req, res) => {
   const { userId, otp } = req.body;
 
@@ -198,7 +199,9 @@ const verifyEmail = async (req, res) => {
   }
 
   try {
-    const user = await userModel.findById(userId).select("+verifyOtp +verifyOtpExpireAt");
+    const user = await userModel
+      .findById(userId)
+      .select("+verifyOtp +verifyOtpExpireAt");
 
     if (!user) {
       return res.status(404).json({
@@ -241,4 +244,27 @@ const verifyEmail = async (req, res) => {
   }
 };
 
-export { registerUser, loginUser, logoutUser, sendVerifyOtp, verifyEmail };
+// check if user is authenticated
+const isAuthenticated = async (req, res) => {
+  try {
+    return res.status(200).json({
+      success: true,
+      message: "User is authenticated successfully.",
+    });
+  } catch (error) {
+    console.log("Error in isAuthenticated controller:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to verify user authentication. Please try again later.",
+    });
+  }
+};
+
+export {
+  registerUser,
+  loginUser,
+  logoutUser,
+  sendVerifyOtp,
+  verifyEmail,
+  isAuthenticated,
+};
