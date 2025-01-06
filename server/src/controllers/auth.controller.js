@@ -267,8 +267,8 @@ const sendResetOtp = async (req, res) => {
   if (!email) {
     return res.status(400).json({
       success: false,
-      message: "Email is required to reset your password."
-    })
+      message: "Email is required to reset your password.",
+    });
   }
 
   try {
@@ -277,8 +277,8 @@ const sendResetOtp = async (req, res) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: "No account found with the provided email address."
-      })
+        message: "No account found with the provided email address.",
+      });
     }
 
     // Generate otp
@@ -286,7 +286,7 @@ const sendResetOtp = async (req, res) => {
 
     // Update user's reset OTP and expiration
     user.resetOtp = otp;
-    user.resetOtpExpireAt = Date.now() + 15 * 60 * 1000 // 15 minutes
+    user.resetOtpExpireAt = Date.now() + 15 * 60 * 1000; // 15 minutes
 
     await user.save();
 
@@ -294,7 +294,7 @@ const sendResetOtp = async (req, res) => {
       from: process.env.SENDER_EMAIL,
       to: user.email,
       subject: "Password Reset OTP",
-      text: `Your OTP for resetting your password is: ${otp}. This OTP is valid for 15 minutes. If you did not request this, please ignore this email.`
+      text: `Your OTP for resetting your password is: ${otp}. This OTP is valid for 15 minutes. If you did not request this, please ignore this email.`,
     };
 
     // Send the email
@@ -311,7 +311,73 @@ const sendResetOtp = async (req, res) => {
       message: "Unable to send OTP at the moment. Please try again later.",
     });
   }
-}
+};
+
+// Reset user password
+const resetPassword = async (req, res) => {
+  const { email, otp, newPassword } = req.body;
+
+  if (!email || !otp || !newPassword) {
+    return res.status(400).json({
+      success: false,
+      message:
+        "Email, OTP and new password are required to reset your password.",
+    });
+  }
+
+  try {
+    const user = await userModel
+      .findOne({ email })
+      .select("+resetOtp +resetOtpExpireAt");
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "No account found with the provided email address.",
+      });
+    }
+
+    // Validate OTP
+    if (!user.resetOtp || user.resetOtp !== otp) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid OTP. Please check the OTP and try again.",
+      });
+    }
+
+    // Check if OTP has expired
+    if (user.resetOtpExpireAt < Date.now()) {
+      return res.status(410).json({
+        success: false,
+        message:
+          "The OTP has expired. Please request a new one to reset your password.",
+      });
+    }
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update the user's password and clear OTP-related fields
+    user.password = hashedPassword;
+    user.resetOtp = "";
+    user.resetOtpExpireAt = null;
+
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message:
+        "Your password has been reset successfully. You can now log in with your new password.",
+    });
+  } catch (error) {
+    console.log("Error in resetPassword controller:", error);
+    return res.status(500).json({
+      success: false,
+      message:
+        "An unexpected error occurred while resetting your password. Please try again later.",
+    });
+  }
+};
 
 export {
   registerUser,
@@ -320,4 +386,6 @@ export {
   sendVerifyOtp,
   verifyEmail,
   isAuthenticated,
+  sendResetOtp,
+  resetPassword,
 };
