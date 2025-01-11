@@ -10,7 +10,18 @@ import { ToastContainer } from "react-toastify";
 const App = () => {
   return (
     <div>
-      <ToastContainer />
+      <ToastContainer
+      position="bottom-right"
+      autoClose={2000}
+      hideProgressBar={false}
+      newestOnTop={false}
+      closeOnClick={false}
+      rtl={false}
+      pauseOnFocusLoss
+      draggable
+      pauseOnHover
+      theme="dark"
+      />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
