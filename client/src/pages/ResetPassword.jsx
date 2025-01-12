@@ -14,6 +14,7 @@ const ResetPassword = () => {
   const [isEmailSent, setIsEMailSent] = useState("");
   const [isOtpSubmitted, setIsOtpSubmitted] = useState(false);
   const [newPassword, setNewPassword] = useState("");
+  const [otp, setOtp] = useState(0);
 
   const inputRefs = useRef([]);
 
@@ -52,6 +53,13 @@ const ResetPassword = () => {
     } catch (error) {
       toast.error(error.message);
     }
+  };
+
+  const onSubmitOTP = async (e) => {
+    e.preventDefault();
+    const otpArray = inputRefs.current.map((e) => e.value);
+    setOtp(otpArray.join(""));
+    setIsOtpSubmitted(true);
   };
 
   return (
@@ -96,7 +104,10 @@ const ResetPassword = () => {
 
       {/* OTP input form */}
       {!isOtpSubmitted && isEmailSent && (
-        <form className="bg-slate-900 p-8 rounded-lg shadow-lg w-96 text-sm">
+        <form
+          onSubmit={onSubmitOTP}
+          className="bg-slate-900 p-8 rounded-lg shadow-lg w-96 text-sm"
+        >
           <h1 className="text-white text-2xl font-semibold text-center mb-4">
             Reset Password OTP
           </h1>
