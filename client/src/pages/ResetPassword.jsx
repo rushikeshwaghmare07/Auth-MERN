@@ -7,6 +7,7 @@ const ResetPassword = () => {
   const [email, setEmail] = useState("");
   const [isEmailSent, setIsEMailSent] = useState("");
   const [isOtpSubmitted, setIsOtpSubmitted] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
 
   const inputRefs = useRef([]);
 
@@ -95,6 +96,34 @@ const ResetPassword = () => {
               ))}
           </div>
           <button className="w-full py-3 bg-gradient-to-r from-indigo-500 to-indigo-800 text-white rounded-full">
+            Submit
+          </button>
+        </form>
+      )}
+
+      {/* Enter new Password */}
+      {isOtpSubmitted && isEmailSent && (
+        <form className="bg-slate-900 p-8 rounded-lg shadow-lg w-96 text-sm">
+          <h1 className="text-white text-2xl font-semibold text-center mb-4">
+            New Password
+          </h1>
+          <p className="text-center mb-6 text-indigo-300">
+            Enter the new password below.
+          </p>
+          <div className="mb-4 flex items-center gap-3 w-full px-5 py-2.5 rounded-full bg-[#333A5C]">
+            <img src={assets.mail_icon} alt="mail_icon" className="w-3 h-3" />
+            <input
+              type="password"
+              placeholder="Password"
+              name=""
+              id=""
+              className="bg-transparent outline-none text-white"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              required
+            />
+          </div>
+          <button className="w-full py-2.5 bg-gradient-to-r from-indigo-500 to-indigo-900 text-white rounded-full mt-3">
             Submit
           </button>
         </form>
