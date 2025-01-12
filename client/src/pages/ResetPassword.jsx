@@ -1,8 +1,14 @@
 import React, { useContext, useRef, useState } from "react";
 import { assets } from "../assets/assets";
 import { useNavigate } from "react-router-dom";
+import { AppContext } from "../components/context/AppContext";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 const ResetPassword = () => {
+  axios.defaults.withCredentials = true;
+  const { backendUrl } = useContext(AppContext);
+
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [isEmailSent, setIsEMailSent] = useState("");
@@ -33,6 +39,21 @@ const ResetPassword = () => {
     });
   };
 
+  const onSubmitEmail = async (e) => {
+    e.preventDefault();
+    try {
+      const { data } = await axios.post(
+        backendUrl + "/api/auth/send-reset-otp",
+        { email }
+      );
+
+      data.success ? toast.success(data.message) : toast.error(data.message);
+      data.success && setIsEMailSent(true);
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-green-300 via-purple-300 to-purple-500">
       <img
@@ -44,7 +65,10 @@ const ResetPassword = () => {
 
       {/* Enter email id */}
       {!isEmailSent && (
-        <form className="bg-slate-900 p-8 rounded-lg shadow-lg w-96 text-sm">
+        <form
+          onSubmit={onSubmitEmail}
+          className="bg-slate-900 p-8 rounded-lg shadow-lg w-96 text-sm"
+        >
           <h1 className="text-white text-2xl font-semibold text-center mb-4">
             Reset Password
           </h1>
